@@ -1,9 +1,19 @@
 This repository provides python code in support of the interoperability working group part of NOCTURN
 
-
 ge.py ::
 
-	python ge.py 'S:\CT_DATA\Invertebrate Zoology\Goetz, Freya\FEG230530_413/FEG230530_413.pca'
+	python ge.py /nocturn/data/FEG230530_413
 
-generates an excel spreasheet containing meta data as defined by the National Museum of Natural History
+cretes an excel spreasheet called **master.xlsx** containing meta data as defined by the National Museum of Natural History. 
 
+If **master.xlsx** already exists it will append a new meta data row to the existing spreadsheet. In practice you can run ge.py multiple times to automatically populate the excel spreadsheet with meta data::
+
+	python ge.py /nocturn/data/FEG230509_407	
+	python ge.py /nocturn/data/FEG230530_408	
+	python ge.py /nocturn/data/FEG230530_409	
+	python ge.py /nocturn/data/FEG230530_410	
+	python ge.py /nocturn/data/FEG230530_411	
+	python ge.py /nocturn/data/FEG230530_412	
+	python ge.py /nocturn/data/FEG230530_413
+
+will append to the Sheet1 of master.xlsx the meta data for all samples listed above
