@@ -1,4 +1,3 @@
-
 import sys
 import pprint
 import xmltodict
@@ -6,6 +5,8 @@ import configparser
 import pandas as pd
 import pathlib
 from datetime import datetime
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl import load_workbook
 
 def extract_meta_from_config(file_name):
     # Exact meta data from config file (pca)
@@ -50,23 +51,36 @@ def extract_meta_from_pcp(file_name):
 def main(args):
 
     if len(sys.argv) == 1:
-        print ('Must provide the path to the pca file as the argument')
+        print ('ERROR: Must provide the path to a run-file folder as the argument')
+        print ('Example:')
+        print ('        python ge.py /Users/decarlo/conda/nocturn/data/FEG230530_413/')
         sys.exit(1)
-    
-    file_name   = sys.argv[1]
-    p = pathlib.PurePath(file_name)
+    else:
 
-    # print(p.suffix)
-    # exit()
-    # print(p.parents[0])
-    # print(p.stem)
-    # print(p.suffix)
+        file_name   = sys.argv[1]
+        p = pathlib.Path(file_name)
+        if p.is_dir():
+            p = pathlib.Path(file_name).joinpath(p.stem)
+            file_name_pca   = p.with_suffix('.pca')
+            file_name_pcp   = p.with_suffix('.pcp')
+            file_name_pcr   = p.with_suffix('.pcr')
+            file_name_dtxml = p.with_suffix('.dtxml')
+            file_name_xlsx  = p.parents[1].joinpath('master').with_suffix('.xlsx')
+        else:
+            print('ERROR: %s does not exist' % p)
+            sys.exit(1)
+    # print('1', p)
+    # print('2', p.suffix)
+    # print('3', p.parents[0])
+    # print('3', p.parents[1])
+    # print('4', p.stem)
+    # print('5', p.suffix)
 
-    file_name_pca   = p.with_suffix('.pca')
-    file_name_pcp   = p.with_suffix('.pcp')
-    file_name_pcr   = p.with_suffix('.pcr')
-    file_name_dtxml = p.with_suffix('.dtxml')
-    file_name_xlsx  = p.with_suffix('.xlsx')
+    # print(file_name_pca  ) 
+    # print(file_name_pcp  ) 
+    # print(file_name_pcr  ) 
+    # print(file_name_dtxml) 
+    # print(file_name_xlsx ) 
 
     my_dict = {}
 
@@ -85,37 +99,49 @@ def main(args):
     my_dict['specimen ID or USNM#']                = my_xml_dict['Sample ID']
     my_dict['Species name']                        = my_xml_dict['Sample Name']
     my_dict['stain']                               = my_xml_dict['Description']
-    my_dict['Sample type']                         = "Manual Entry"
+    my_dict['Sample type']                         = my_xml_dict['Sample Type']
     my_dict['folder name']                         = p.stem
     # my_dict['Folder']                              = my_pcr_dict['ImageData']['pca_file']
     my_dict['timing (ms)']                         = my_pca_dict['Detector']['timingval']
     my_dict['frame avg']                           = my_pca_dict['Detector']['avg']
     my_dict['skip']                                = my_pca_dict['CT']['skipacc']
     my_dict['binning']                             = my_pca_dict['Detector']['binning']
-    my_dict['sensitivity']                         = "Manual Entry"
+    my_dict['sensitivity']                         = my_pca_dict['Detector']['cameragain']
     my_dict['# images']                            = my_pca_dict['CT']['numberimages']
     my_dict['total scanning time (hrs)']           = str(scan_time)
     my_dict['voltage (kV)']                        = my_pca_dict['Xray']['voltage']
     my_dict['current (uA)']                        = my_pca_dict['Xray']['current']
+    my_dict['act. power (W)']                      = "Manual Entry"
     my_dict['magnification']                       = my_pca_dict['Geometry']['magnification']
     my_dict['voxel size (um)']                     = float(my_pca_dict['Geometry']['voxelsizex']) * 1000.0
-    my_dict['nano microfocus tube']                = my_pca_dict['Xray']['name']
+    my_dict['tube type']                           = my_pca_dict['Xray']['name']
     my_dict['mode']                                = my_pca_dict['Xray']['mode']
     my_dict['multiscan (# of scans)']              = my_pca_dict['Multiscan']['active']
     my_dict['filter']                              = "Manual Entry"
     my_dict['target']                              = "Manual Entry"
     my_dict['collimator']                          = "Manual Entry"
+
+    # Specific to Freya
     my_dict['Trawl number or collection event ID'] = "Manual Entry"
     my_dict['same specimen as Scan x']             = "Manual Entry"
     my_dict['specimen pixel width']                = "Manual Entry"
 
     # additional meta data
     my_dict['general system name']                 = my_pca_dict['General']['systemname']
-    my_dict['tube type']                           = my_pca_dict['Xray']['name']
 
     df = pd.DataFrame(data={**my_dict}, index=[0])
-    df.to_excel(file_name_xlsx)
-    print('Meta-data excel file is at: %s' % file_name_xlsx)
+    xlsx = pathlib.Path(file_name_xlsx)
+    if xlsx.is_file():
+        wb = load_workbook(filename = file_name_xlsx)
+        ws = wb["Sheet1"]
+        for r in dataframe_to_rows(df, index=False, header=False):  #No index and don't append the column headers
+            ws.append(r)
+        wb.save(file_name_xlsx)
+        # df.to_excel(file_name_xlsx, header=False, index=False)
+        print('Append to existing meta-data excel file at: %s' % file_name_xlsx)
+    else:
+        df.to_excel(file_name_xlsx, header=True, index=False)
+        print('Create a new meta-data excel file at: %s' % file_name_xlsx)
 
 if __name__ == "__main__":
    main(sys.argv)
