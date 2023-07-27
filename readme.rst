@@ -17,3 +17,21 @@ If **master.xlsx** already exists it will append a new meta data row to the exis
 	python ge.py /nocturn/data/FEG230530_413
 
 will append to the Sheet1 of master.xlsx the meta data for all samples listed above
+
+
+Dependencies
+============
+
+Create a new conda environment::
+
+	conda create --name nocturn python=3.9
+
+and activate the new environment with::
+
+	conda activate nocturn
+
+then install the following packages::
+
+	conda install xmltodict
+	conda install pandas
+	conda install openpyxl
