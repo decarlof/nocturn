@@ -10,15 +10,32 @@ from openpyxl import load_workbook
 
 def extract_meta_from_config(file_name):
     # Exact meta data from config file (pca)
-    with open(file_name, encoding='latin-1') as f:
-        config = configparser.ConfigParser()
-        config.read_file(f)   
 
-    sections = config.sections()
-    meta_dict = {i: {i[0]: i[1] for i in config.items(i)} for i in config.sections()}
-    # for key in meta_dict:
-    #     print(key, meta_dict[key])
+    try:
+        with open(file_name, encoding='latin-1') as f:
+            config = configparser.ConfigParser()
+            config.read_file(f)   
 
+        sections = config.sections()
+        meta_dict = {i: {i[0]: i[1] for i in config.items(i)} for i in config.sections()}
+        # for key in meta_dict:
+        #     print(key, meta_dict[key])
+    except FileNotFoundError:
+        print("ERROR: %s is missing. Looking for a _rar file" % file_name)
+        fname        = pathlib.Path(file_name)
+        fname_suffix = fname.suffix
+        file_name_rar  = fname.with_name(file_name.stem + '_rar').with_suffix(fname_suffix)
+        print('Found %s file' % file_name_rar)
+        try:
+            with open(file_name_rar, encoding='latin-1') as f:
+                config = configparser.ConfigParser()
+                config.read_file(f)   
+
+            sections = config.sections()
+            meta_dict = {i: {i[0]: i[1] for i in config.items(i)} for i in config.sections()}
+        except:
+            print("ERROR: %s is also missing" % file_name_rar)
+            exit()
     return meta_dict
 
 def extract_meta_from_dtxml(file_name):
