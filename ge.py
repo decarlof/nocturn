@@ -55,13 +55,32 @@ def extract_meta_from_dtxml(file_name):
 
 def extract_meta_from_pcp(file_name):
     # Extract meta data from pcp file
-    with open(file_name) as file:
-        time_start = file.readlines()[2].split("\t")[-1].strip()
-        datetime_start = datetime.strptime(time_start, '%Y-%m-%d %H:%M:%S')
-        file.seek(0)  
-        time_end = file.readlines()[-1].split("\t")[-1].strip()
-        datetime_end = datetime.strptime(time_end, '%Y-%m-%d %H:%M:%S')
-    scan_time = datetime_end - datetime_start
+    try:
+        with open(file_name) as file:
+            time_start = file.readlines()[2].split("\t")[-1].strip()
+            datetime_start = datetime.strptime(time_start, '%Y-%m-%d %H:%M:%S')
+            file.seek(0)  
+            time_end = file.readlines()[-1].split("\t")[-1].strip()
+            datetime_end = datetime.strptime(time_end, '%Y-%m-%d %H:%M:%S')
+        scan_time = datetime_end - datetime_start
+    except FileNotFoundError:
+        print("ERROR: %s is missing. Looking for a _rar file" % file_name)
+        fname        = pathlib.Path(file_name)
+        fname_suffix = fname.suffix
+        file_name_rar  = fname.with_name(file_name.stem + '_rar').with_suffix(fname_suffix)
+        print('Found %s file' % file_name_rar)
+        try:
+            with open(file_name_rar, encoding='latin-1') as file:
+
+                time_start = file.readlines()[2].split("\t")[-1].strip()
+                datetime_start = datetime.strptime(time_start, '%Y-%m-%d %H:%M:%S')
+                file.seek(0)  
+                time_end = file.readlines()[-1].split("\t")[-1].strip()
+                datetime_end = datetime.strptime(time_end, '%Y-%m-%d %H:%M:%S')
+            scan_time = datetime_end - datetime_start
+        except:
+            print("ERROR: %s is also missing" % file_name_rar)
+            exit()
 
     return scan_time, datetime_start
 
