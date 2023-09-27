@@ -13,7 +13,7 @@ def extract_meta_from_config(file_name):
 
     try:
         with open(file_name, encoding='latin-1') as f:
-            config = configparser.ConfigParser()
+            config = configparser.ConfigParser(interpolation=None)
             config.read_file(f)   
 
         sections = config.sections()
