@@ -125,6 +125,9 @@ def main(args):
     my_pca_dict = extract_meta_from_config(file_name_pca)
     my_xml_dict = extract_meta_from_dtxml(file_name_dtxml)
 
+    print(file_name_dtxml)
+    print(my_xml_dict)
+    # exit()
     # Dictionary keys assignment. The order of the assigment will sort the xlsx file columns 
     my_dict['scan date']                           = datetime_start
     my_dict['Operator']                            = my_xml_dict['Operator']
@@ -135,7 +138,10 @@ def main(args):
     my_dict['specimen ID or USNM#']                = my_xml_dict['Sample ID']
     my_dict['Species name']                        = my_xml_dict['Sample Name']
     my_dict['stain']                               = my_xml_dict['Description']
-    my_dict['Sample type']                         = my_xml_dict['Sample Type']
+    try: 
+        my_dict['Sample type']                      = my_xml_dict['Sample Type']
+    except KeyError: 
+        print('Sample type is missing')
     my_dict['folder name']                         = p.stem
     # my_dict['Folder']                              = my_pcr_dict['ImageData']['pca_file']
     my_dict['timing (ms)']                         = my_pca_dict['Detector']['timingval']
