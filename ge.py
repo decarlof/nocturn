@@ -125,9 +125,6 @@ def main(args):
     my_pca_dict = extract_meta_from_config(file_name_pca)
     my_xml_dict = extract_meta_from_dtxml(file_name_dtxml)
 
-    print(file_name_dtxml)
-    print(my_xml_dict)
-    # exit()
     # Dictionary keys assignment. The order of the assigment will sort the xlsx file columns 
     my_dict['scan date']                           = datetime_start
     my_dict['Operator']                            = my_xml_dict['Operator']
