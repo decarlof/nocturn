@@ -138,7 +138,8 @@ def main(args):
     try: 
         my_dict['Sample type']                      = my_xml_dict['Sample Type']
     except KeyError: 
-        print('Sample type is missing')
+        print('Sample type is missing, added empty field')
+        my_dict['Sample type']                      = 'Empty'
     my_dict['folder name']                         = p.stem
     # my_dict['Folder']                              = my_pcr_dict['ImageData']['pca_file']
     my_dict['timing (ms)']                         = my_pca_dict['Detector']['timingval']
