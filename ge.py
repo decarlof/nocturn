@@ -92,19 +92,20 @@ def main(args):
         print ('        python ge.py /Users/decarlo/conda/nocturn/data/FEG230530_413/')
         sys.exit(1)
     else:
-
-        file_name   = sys.argv[1]
-        p = pathlib.Path(file_name)
-        if p.is_dir():
-            p = pathlib.Path(file_name).joinpath(p.stem)
-            file_name_pca   = p.with_suffix('.pca')
-            file_name_pcp   = p.with_suffix('.pcp')
-            file_name_pcr   = p.with_suffix('.pcr')
-            file_name_dtxml = p.with_suffix('.dtxml')
-            file_name_xlsx  = p.parents[1].joinpath('master').with_suffix('.xlsx')
-        else:
-            print('ERROR: %s does not exist' % p)
-            sys.exit(1)
+        for arg in sys.argv[1:]:
+            print('Looking into %s' % arg)
+            file_name   = arg
+            p = pathlib.Path(file_name)
+            if p.is_dir():
+                p = pathlib.Path(file_name).joinpath(p.stem)
+                file_name_pca   = p.with_suffix('.pca')
+                file_name_pcp   = p.with_suffix('.pcp')
+                file_name_pcr   = p.with_suffix('.pcr')
+                file_name_dtxml = p.with_suffix('.dtxml')
+                file_name_xlsx  = p.parents[1].joinpath('master').with_suffix('.xlsx')
+            else:
+                print('ERROR: %s does not exist' % p)
+                sys.exit(1)
     # print('1', p)
     # print('2', p.suffix)
     # print('3', p.parents[0])
